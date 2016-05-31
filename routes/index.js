@@ -74,3 +74,7 @@ router.put('/quizzes/:quizId(\\d+)/comments/:commentId(\\d+)/accept',
 	                                               commentController.accept);
 
 module.exports = router;
+
+router.get('/author', function(req, res, next) {
+ res.render('author');
+ });
