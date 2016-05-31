@@ -54,7 +54,20 @@ app.use(function(req, res, next) {
 
    next();
 });
-
+// Comprobamos si la sesion ha expirado (2 minutos)
+ app.use(function(req, res, next) {
+   if(req.session.user){
+     if((Date.now() - req.session.user.expires) < 120000){
+       req.session.user.expires = Date.now();
+     } else {
+       delete req.session.user;
+       req.flash('error', 'La sesión ha expirado.');
+     }
+   }
+ 
+   next();
+ });
+ 
 app.use('/', routes);
 
 // catch 404 and forward to error handler
