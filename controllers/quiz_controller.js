@@ -41,36 +41,48 @@ exports.ownershipRequired = function(req, res, next){
 
 
 // GET /quizzes
-exports.index = function(req, res, next) {
-  
-if(req.query.search !== undefined){
-    var search = req.query.search.split(' ');
-     search = search.join('%');
-     models.Quiz.findAll({order: 'question', where: {question: {$like : "%"+search+"%" }}})
-     .then(function(quizzes) {
- 
-       res.render('quizzes/index.ejs', { quizzes: quizzes});
-     })
-     .catch(function(error) { next(error) });
- 
+  exports.index = function(req, res, next) {
+   if ((req.params.format === 'html') || (!req.params.format)){
+     if (req.query.search) {
+       var search = '%' + req.query.search.split('').join('%') + '%';
+       models.Quiz.findAll({where: ["pregunta like ?", search]}).then(function(quizzes) {
+         res.render('quizzes/index', {quizzes:quizzes});
+       })
+       .catch(function(error){
+         next(error);
+       });
+     } else {
+    models.Quiz.findAll().then(function(quizzes) {
+      res.render('quizzes/index', {quizzes: quizzes});
+      })
+      .catch(function(error){
+        next(error);
+      });
+   }
+   } else if (req.params.format == 'json') {
+      models.Quiz.findAll().then(function(quizzes) {
+       res.send(JSON.stringify(quizzes));
+      })
+      .catch(function(error){
+        next(error);
+      });
    } else {
-     models.Quiz.findAll()
-     .then(function(quizzes) {
-       res.render('quizzes/index.ejs', { quizzes: quizzes});
-     })
-     .catch(function(error) { next(error) });
-  }
-};
+     throw new Error("Formato no válido");
+    }
+  };
 
 
-// GET /quizzes/:quizId
-exports.show = function(req, res, next) {
-
-	var answer = req.query.answer || '';
-
-	res.render('quizzes/show', {quiz: req.quiz,
-								answer: answer});
-};
+// GET /quizzes/:id
+  exports.show = function(req, res, next) {
+   if ((req.params.format==='html') || (!req.params.format)) {
+     var answer = req.query.answer || '';
+     res.render('quizzes/show', {quiz: req.quiz, answer: answer});
+   } else if (req.params.format === 'json') {
+     res.send(JSON.stringify(req.quiz));
+   } else {
+     throw new Error("Formato no válido")
+   }
+  };
 
 
 // GET /quizzes/:quizId/check
