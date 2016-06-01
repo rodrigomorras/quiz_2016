@@ -76,7 +76,7 @@ exports.ownershipRequired = function(req, res, next){
   exports.show = function(req, res, next) {
    if ((req.params.format==='html') || (!req.params.format)) {
      var answer = req.query.answer || '';
-     res.render('quizzes/show', {quiz: req.quiz, answer: answer});
+    res.render('quizzes/show', {quiz: req.quiz, answer: answer, users: req.users});
    } else if (req.params.format === 'json') {
      res.send(JSON.stringify(req.quiz));
    } else {

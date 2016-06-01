@@ -1,48 +1,55 @@
 
 <h2>Pregunta</h2>
 
-<p>
+ <p>
   <form method="get" action="/quizzes/<%= quiz.id %>/check">
-    <p>
-      <%= quiz.question %>
-    </p>
-
-    <% if (quiz.Attachment) { %>
-      <img src="<%= quiz.Attachment.url %>" />
-    <% } else { %> 
-      <img src="/imgs/question.png" width="50px" />
-    <% } %> 
-
-    <p>
-      <input type="text" name="answer" value="<%= answer %>" placeholder="Respuesta" />
+    <p> Pregunta: <%= quiz.question %> </p>
+    
+     <% if (quiz.Attachment) { %>
+       <img src="<%= quiz.Attachment.url %>" />
+     <% } else { %> 
+       <img src="/imgs/question.png" width="50px" />
+     <% } %> 
+     
+     <p>
+      <input type="text" name="answer" value="<%= answer %>" placeholder="Responda aquí">
       <input type="submit" value="Comprobar">
     </p>
   </form>
-</p>
-
-<h2>Comentarios</h2>
-
-<% if (session.user) { %>
-  <p>
-    <a href="/quizzes/<%= quiz.id %>/comments/new"><button>Nuevo comentario</button></a>
-  </p>
-<% } %>
-
-<ul>
-  <% for (var i in quiz.Comments) { 
-       var comment = quiz.Comments[i];
-       if (comment.accepted) { %>
-
-           <li> <%= comment.text %> </li>
-
-       <% } else if (session.user && 
-                     (session.user.isAdmin || (quiz.AuthorId === session.user.id))) { %>
-
-           <li> <%= comment.text %> </li>
-
-           <a href="/quizzes/<%= quiz.id %>/comments/<%= comment.id %>/accept?_method=PUT">
-              <button>Aceptar</button>
-           </a>
-       <% } %>
-  <% } %>
-</ul>
+ </p>
+ 
+ <% if (session.user) { %>
+  <p><a href="/quizzes/<%= quiz.id %>/comments/new"><button>Nuevo comentario</button></a></p>
+ <% } %>
+ 
+ <p><strong>Comentarios</strong></p>
+ <ul>
+   <% for (var i in quiz.Comments) { 
+         var comment = quiz.Comments[i];
+         if (comment.accepted) { %>
+            <li> 
+             <%= comment.text %> 
+             <% for(var j in users) {
+               if(users[j] == comment.AuthorId) { %>
+                 (<%= users[j].username %>)
+               <% } %>
+             <% } %>
+           </li>
+  
+         <% } else if (session.user && 
+                       (session.user.isAdmin || (quiz.AuthorId === session.user.id))) { %>
+            <li> 
+             <%= comment.text %>
+             <% for(var j in users) {
+               if(users[j] == comment.AuthorId) { %>
+                 (<%= users[j].username %>)
+               <% } %>
+             <% } %>
+           </li>
+  
+             <a href="/quizzes/<%= quiz.id %>/comments/<%= comment.id %>/accept?_method=PUT">
+                <button>Aceptar</button>
+            </a>
+        <% } %>
+   <% } %>
+ </ul>
